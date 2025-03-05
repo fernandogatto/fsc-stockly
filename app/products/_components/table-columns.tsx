@@ -5,10 +5,6 @@ import { Product } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { CircleIcon } from "lucide-react";
 
-interface NewProdutPorps extends Product {
-  status: string;
-}
-
 const getStatusLabel = (status: string) => {
   if (status === "IN_STOCK") {
     return "Em estoque";
@@ -16,7 +12,7 @@ const getStatusLabel = (status: string) => {
   return "Fora de estoque";
 };
 
-export const productTableColumns: ColumnDef<NewProdutPorps>[] = [
+export const productTableColumns: ColumnDef<Product>[] = [
   {
     accessorKey: "name",
     header: "Produto",
