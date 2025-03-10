@@ -31,6 +31,7 @@ import {
   createProductSchema,
   CreateProductSchema,
 } from "@/app/_actions/product/create-product/schema";
+import { toast } from "sonner";
 
 const CreateProductButton = () => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
@@ -48,10 +49,11 @@ const CreateProductButton = () => {
   const onSubmit = async (data: CreateProductSchema) => {
     try {
       await createProduct(data);
-
       setDialogIsOpen(false);
+      toast.success("Produto criado com sucesso.");
     } catch (err) {
       console.error("onSubmit:", err);
+      toast.error("Ocorreu um erro ao criar o produto.");
     }
   };
 
