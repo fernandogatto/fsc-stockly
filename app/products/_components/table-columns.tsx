@@ -78,18 +78,18 @@ export const productTableColumns: ColumnDef<Product>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem
-                className="gap-1.5"
+                className="gap-2"
                 onClick={() => navigator.clipboard.writeText(product.id)}
               >
                 <ClipboardCopyIcon size={16} />
                 Copiar ID
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-1.5" onClick={() => {}}>
+              <DropdownMenuItem className="gap-2" onClick={() => {}}>
                 <EditIcon size={16} />
                 Editar
               </DropdownMenuItem>
               <AlertDialogTrigger asChild>
-                <DropdownMenuItem className="gap-1.5">
+                <DropdownMenuItem className="gap-2">
                   <TrashIcon size={16} />
                   Excluir
                 </DropdownMenuItem>
