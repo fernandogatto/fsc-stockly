@@ -21,7 +21,7 @@ import {
   MoreHorizontalIcon,
   TrashIcon,
 } from "lucide-react";
-import AlertDeleteDialogContent from "./delete-dialog-content";
+import AlertDeleteProductDialogContent from "./delete-dialog-content";
 
 const getStatusLabel = (status: string) => {
   if (status === "IN_STOCK") {
@@ -97,7 +97,7 @@ export const productTableColumns: ColumnDef<Product>[] = [
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <AlertDeleteDialogContent productId={product.id} />
+          <AlertDeleteProductDialogContent productId={product.id} />
         </AlertDialog>
       );
     },

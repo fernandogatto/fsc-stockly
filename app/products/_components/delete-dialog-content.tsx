@@ -10,13 +10,13 @@ import {
 } from "@/app/_components/ui/alert-dialog";
 import { toast } from "sonner";
 
-interface AlertDeleteDialogContentProps {
+interface AlertDeleteProductDialogContentProps {
   productId: string;
 }
 
-const AlertDeleteDialogContent = ({
+const AlertDeleteProductDialogContent = ({
   productId,
-}: AlertDeleteDialogContentProps) => {
+}: AlertDeleteProductDialogContentProps) => {
   const handleContinueClick = async () => {
     try {
       await deleteProduct({ id: productId });
@@ -45,4 +45,4 @@ const AlertDeleteDialogContent = ({
   );
 };
 
-export default AlertDeleteDialogContent;
+export default AlertDeleteProductDialogContent;
