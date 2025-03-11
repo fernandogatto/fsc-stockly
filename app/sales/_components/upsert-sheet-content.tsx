@@ -79,13 +79,25 @@ const UpsertSaleSheetContent = ({
 
     if (!selectedProduct) return;
 
-    setSelectedProducts((prev) => {
-      const existingProduct = prev.find(
+    setSelectedProducts((currentProducts) => {
+      const existingProduct = currentProducts.find(
         (product) => product.id === selectedProduct.id,
       );
 
       if (existingProduct) {
-        return prev.map((product) =>
+        const productIsOutOfStock =
+          existingProduct.quantity + data.quantity > selectedProduct.stock;
+
+        if (productIsOutOfStock) {
+          form.setError("quantity", {
+            message: "Quantidade indisponível em estoque.",
+          });
+          return currentProducts;
+        }
+
+        form.reset();
+
+        return currentProducts.map((product) =>
           product.id === selectedProduct.id
             ? {
                 ...product,
@@ -95,8 +107,19 @@ const UpsertSaleSheetContent = ({
         );
       }
 
+      const productIsOutOfStock = data.quantity > selectedProduct.stock;
+
+      if (productIsOutOfStock) {
+        form.setError("quantity", {
+          message: "Quantidade indisponível em estoque.",
+        });
+        return currentProducts;
+      }
+
+      form.reset();
+
       return [
-        ...prev,
+        ...currentProducts,
         {
           ...selectedProduct,
           price: Number(selectedProduct.price),
@@ -104,8 +127,6 @@ const UpsertSaleSheetContent = ({
         },
       ];
     });
-
-    form.reset();
   };
 
   const onDelete = (productId: string) => {
