@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/app/_components/ui/badge";
+import { formatCurrency } from "@/app/_utils/currency";
 import { Product } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { CircleIcon } from "lucide-react";
@@ -24,10 +25,7 @@ export const productTableColumns: ColumnDef<Product>[] = [
     cell: (row) => {
       const product = row.row.original;
 
-      return Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(Number(product.price));
+      return formatCurrency(Number(product.price));
     },
   },
   {
