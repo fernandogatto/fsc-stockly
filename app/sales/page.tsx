@@ -1,10 +1,7 @@
-import { Button } from "@/app/_components/ui/button";
-import { Sheet, SheetTrigger } from "@/app/_components/ui/sheet";
-import { PlusIcon } from "lucide-react";
-import { getProducts } from "../_data-access/product/get-products";
-import UpsertSaleSheetContent from "./_components/upsert-sheet-content";
 import { Product } from "@prisma/client";
 import { ComboboxOption } from "../_components/ui/combobox";
+import { getProducts } from "../_data-access/product/get-products";
+import CreateSaleButton from "./_components/create-sale-button";
 
 const SalesPage = async () => {
   const products = await getProducts();
@@ -23,19 +20,7 @@ const SalesPage = async () => {
           <h2 className="text-xl font-semibold">Vendas</h2>
         </div>
 
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button className="gap-2">
-              <PlusIcon size={20} />
-              Nova venda
-            </Button>
-          </SheetTrigger>
-
-          <UpsertSaleSheetContent
-            products={products}
-            productOptions={productOptions}
-          />
-        </Sheet>
+        <CreateSaleButton products={products} productOptions={productOptions} />
       </div>
 
       {/* <DataTable
