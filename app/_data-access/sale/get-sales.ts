@@ -2,21 +2,27 @@ import "server-only";
 
 import { db } from "@/app/_lib/prisma";
 
+interface SaleProductDto {
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  productName: string;
+}
+
 export interface SaleDto {
   id: string;
-  productNames: string[];
+  productNames: string;
   totalProducts: number;
   totalAmount: number;
   date: Date;
+  saleProducts: SaleProductDto[];
 }
 
 export const getSales = async (): Promise<SaleDto[]> => {
   const sales = await db.sale.findMany({
     include: {
       saleProducts: {
-        include: {
-          product: true,
-        },
+        include: { product: true },
       },
     },
   });
@@ -25,15 +31,23 @@ export const getSales = async (): Promise<SaleDto[]> => {
     date: sale.date,
     productNames: sale.saleProducts
       .map((saleProduct) => saleProduct.product.name)
-      .join(", "),
-    totalProducts: sale.saleProducts.reduce(
-      (acc, saleProduct) => acc + saleProduct.quantity,
-      0,
-    ),
+      .join(" • "),
     totalAmount: sale.saleProducts.reduce(
       (acc, saleProduct) =>
         acc + saleProduct.quantity * Number(saleProduct.unitPrice),
       0,
+    ),
+    totalProducts: sale.saleProducts.reduce(
+      (acc, saleProduct) => acc + saleProduct.quantity,
+      0,
+    ),
+    saleProducts: sale.saleProducts.map(
+      (saleProduct): SaleProductDto => ({
+        productId: saleProduct.productId,
+        productName: saleProduct.product.name,
+        quantity: saleProduct.quantity,
+        unitPrice: Number(saleProduct.unitPrice),
+      }),
     ),
   }));
 };
