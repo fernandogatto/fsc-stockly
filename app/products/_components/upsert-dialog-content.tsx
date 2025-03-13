@@ -27,15 +27,17 @@ import {
   FormMessage,
 } from "@/app/_components/ui/form";
 import { Input } from "@/app/_components/ui/input";
+import { useAction } from "next-safe-action/hooks";
+import { Dispatch, SetStateAction } from "react";
 
 interface UpsertProductDialogContentProps {
   defaultValues?: UpsertProductSchema;
-  onSuccess?: () => void;
+  setDialogIsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const UpsertProductDialogContent = ({
   defaultValues,
-  onSuccess,
+  setDialogIsOpen,
 }: UpsertProductDialogContentProps) => {
   const form = useForm<UpsertProductSchema>({
     shouldUnregister: true,
@@ -47,19 +49,22 @@ const UpsertProductDialogContent = ({
     },
   });
 
-  const isEditing = !!defaultValues;
+  const isUpdate = !!defaultValues;
 
-  const onSubmit = async (data: UpsertProductSchema) => {
-    try {
-      await upsertProduct({ ...data, id: defaultValues?.id });
-      onSuccess?.();
-      toast.success(`Produto ${isEditing ? "editado" : "criado"} com sucesso.`);
-    } catch (err) {
-      console.error("onSubmit:", err);
+  const { execute: executeUpsertProduct } = useAction(upsertProduct, {
+    onSuccess: () => {
+      toast.success(`Produto ${isUpdate ? "editado" : "criado"} com sucesso.`);
+      setDialogIsOpen(false);
+    },
+    onError: () => {
       toast.error(
-        `Ocorreu um erro ao ${isEditing ? "editar" : "criar"} o produto.`,
+        `Ocorreu um erro ao ${isUpdate ? "editar" : "criar"} o produto.`,
       );
-    }
+    },
+  });
+
+  const onSubmit = (data: UpsertProductSchema) => {
+    executeUpsertProduct(data);
   };
 
   return (
@@ -68,7 +73,7 @@ const UpsertProductDialogContent = ({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? "Editar produto" : "Criar produto"}
+              {isUpdate ? "Editar produto" : "Criar produto"}
             </DialogTitle>
             <DialogDescription>Insira as informações abaixo</DialogDescription>
           </DialogHeader>
