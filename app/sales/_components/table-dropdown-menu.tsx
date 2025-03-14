@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/app/_components/ui/dropdown-menu";
-import { SaleDto } from "@/app/_data-access/sale/get-sales";
+import { Sale } from "@prisma/client";
 import {
   ClipboardCopyIcon,
   EditIcon,
@@ -21,13 +21,19 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import AlertDeleteSaleDialogContent from "./delete-dialog-content";
+import { toast } from "sonner";
 
 interface SaleTableDropdownMenuProps {
-  sale: SaleDto;
+  sale: Pick<Sale, "id">;
 }
 
 const SaleTableDropdownMenu = ({ sale }: SaleTableDropdownMenuProps) => {
   const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
+
+  const handleCopyToClipboardClick = () => {
+    navigator.clipboard.writeText(sale.id);
+    toast.success("ID copiado para a área de transferência");
+  };
 
   return (
     <AlertDialog>
@@ -41,7 +47,7 @@ const SaleTableDropdownMenu = ({ sale }: SaleTableDropdownMenuProps) => {
           <DropdownMenuContent>
             <DropdownMenuItem
               className="gap-2"
-              onClick={() => navigator.clipboard.writeText(sale.id)}
+              onClick={handleCopyToClipboardClick}
             >
               <ClipboardCopyIcon size={16} />
               Copiar ID

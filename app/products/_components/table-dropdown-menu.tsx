@@ -20,6 +20,7 @@ import {
   TrashIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import AlertDeleteProductDialogContent from "./delete-dialog-content";
 import UpsertProductDialogContent from "./upsert-dialog-content";
 
@@ -31,6 +32,11 @@ const ProductTableDropdownMenu = ({
   product,
 }: ProductTableDropdownMenuProps) => {
   const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
+
+  const handleCopyToClipboardClick = () => {
+    navigator.clipboard.writeText(product.id);
+    toast.success("ID copiado para a área de transferência");
+  };
 
   return (
     <AlertDialog>
@@ -44,7 +50,7 @@ const ProductTableDropdownMenu = ({
           <DropdownMenuContent>
             <DropdownMenuItem
               className="gap-2"
-              onClick={() => navigator.clipboard.writeText(product.id)}
+              onClick={handleCopyToClipboardClick}
             >
               <ClipboardCopyIcon size={16} />
               Copiar ID
