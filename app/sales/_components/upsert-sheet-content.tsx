@@ -1,6 +1,6 @@
 "use client";
 
-import { createSale } from "@/app/_actions/sale/create-sale";
+import { upsertSale } from "@/app/_actions/sale/upsert-sale";
 import { Button } from "@/app/_components/ui/button";
 import { Combobox, ComboboxOption } from "@/app/_components/ui/combobox";
 import {
@@ -29,15 +29,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/_components/ui/table";
+import { ProductDto } from "@/app/_data-access/product/get-products";
 import { formatCurrency } from "@/app/_utils/currency";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Product } from "@prisma/client";
 import { CheckIcon, PlusIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { flattenValidationErrors } from "next-safe-action";
+import { useAction } from "next-safe-action/hooks";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import SalesTableDropdownMenu from "./table-drppdown-menu";
-import { toast } from "sonner";
 
 const formSchema = z.object({
   productId: z.string().uuid({
@@ -48,25 +50,44 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-interface UpsertSaleSheetContentProps {
-  products: Product[];
-  productOptions: ComboboxOption[];
-  onSubmitSuccess: () => void;
-}
-
-interface SelectedProps {
+interface SelectedProduct {
   id: string;
   name: string;
   price: number;
   quantity: number;
 }
 
+interface UpsertSaleSheetContentProps {
+  isOpen: boolean;
+  saleId?: string;
+  products: ProductDto[];
+  productOptions: ComboboxOption[];
+  setSheetIsOpen: Dispatch<SetStateAction<boolean>>;
+  defaultSelectedProducts?: SelectedProduct[];
+}
+
 const UpsertSaleSheetContent = ({
+  isOpen,
+  saleId,
   products,
   productOptions,
-  onSubmitSuccess,
+  setSheetIsOpen,
+  defaultSelectedProducts,
 }: UpsertSaleSheetContentProps) => {
-  const [selectedProducts, setSelectedProducts] = useState<SelectedProps[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>(
+    defaultSelectedProducts ?? [],
+  );
+
+  const { execute: executeUpsertSale } = useAction(upsertSale, {
+    onError: ({ error: { validationErrors, serverError } }) => {
+      const flattenedErrors = flattenValidationErrors(validationErrors);
+      toast.error(serverError ?? flattenedErrors.formErrors[0]);
+    },
+    onSuccess: () => {
+      toast.success("Venda realizada com sucesso.");
+      setSheetIsOpen(false);
+    },
+  });
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -76,9 +97,20 @@ const UpsertSaleSheetContent = ({
     },
   });
 
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+      setSelectedProducts([]);
+    }
+  }, [form, isOpen]);
+
+  useEffect(() => {
+    setSelectedProducts(defaultSelectedProducts ?? []);
+  }, [defaultSelectedProducts]);
+
   const onSubmit = (data: FormSchema) => {
     const selectedProduct = products.find(
-      (product: Product) => product.id === data.productId,
+      (product) => product.id === data.productId,
     );
 
     if (!selectedProduct) return;
@@ -140,19 +172,13 @@ const UpsertSaleSheetContent = ({
   };
 
   const onSubmitSale = async () => {
-    try {
-      await createSale({
-        products: selectedProducts.map((product) => ({
-          id: product.id,
-          quantity: product.quantity,
-        })),
-      });
-      toast.success("Venda realizada com sucesso.");
-      onSubmitSuccess();
-    } catch (err) {
-      console.error("onSubmitSale", err);
-      toast.error("Erro ao realizar venda.");
-    }
+    executeUpsertSale({
+      id: saleId,
+      products: selectedProducts.map((product) => ({
+        id: product.id,
+        quantity: product.quantity,
+      })),
+    });
   };
 
   const productsTotal = useMemo(() => {
