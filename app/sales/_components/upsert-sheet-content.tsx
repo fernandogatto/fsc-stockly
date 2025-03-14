@@ -39,7 +39,7 @@ import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import SalesTableDropdownMenu from "./table-drppdown-menu";
+import UpsertSaleTableDropdownMenu from "./upsert-table-drppdown-menu";
 
 const formSchema = z.object({
   productId: z.string().uuid({
@@ -264,7 +264,10 @@ const UpsertSaleSheetContent = ({
                 {formatCurrency(product.price * product.quantity)}
               </TableCell>
               <TableCell>
-                <SalesTableDropdownMenu product={product} onDelete={onDelete} />
+                <UpsertSaleTableDropdownMenu
+                  product={product}
+                  onDelete={onDelete}
+                />
               </TableCell>
             </TableRow>
           ))}
