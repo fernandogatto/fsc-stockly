@@ -39,7 +39,7 @@ import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import UpsertSaleTableDropdownMenu from "./upsert-table-drppdown-menu";
+import UpsertSaleTableDropdownMenu from "./upsert-table-droppdown-menu";
 
 const formSchema = z.object({
   productId: z.string().uuid({
