@@ -5,14 +5,16 @@ import {
   AlertDialogTrigger,
 } from "@/app/_components/ui/alert-dialog";
 import { Button } from "@/app/_components/ui/button";
-import { Dialog, DialogTrigger } from "@/app/_components/ui/dialog";
+import { ComboboxOption } from "@/app/_components/ui/combobox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/app/_components/ui/dropdown-menu";
-import { Sale } from "@prisma/client";
+import { Sheet, SheetTrigger } from "@/app/_components/ui/sheet";
+import { ProductDto } from "@/app/_data-access/product/get-products";
+import { SaleDto } from "@/app/_data-access/sale/get-sales";
 import {
   ClipboardCopyIcon,
   EditIcon,
@@ -20,24 +22,38 @@ import {
   TrashIcon,
 } from "lucide-react";
 import { useState } from "react";
-import AlertDeleteSaleDialogContent from "./delete-dialog-content";
 import { toast } from "sonner";
+import AlertDeleteSaleDialogContent from "./delete-dialog-content";
+import UpsertSaleSheetContent from "./upsert-sheet-content";
 
 interface SaleTableDropdownMenuProps {
-  sale: Pick<Sale, "id">;
+  sale: Pick<SaleDto, "id" | "saleProducts">;
+  products: ProductDto[];
+  productOptions: ComboboxOption[];
 }
 
-const SaleTableDropdownMenu = ({ sale }: SaleTableDropdownMenuProps) => {
-  const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
+const SaleTableDropdownMenu = ({
+  sale,
+  products,
+  productOptions,
+}: SaleTableDropdownMenuProps) => {
+  const [upsertSheetIsOpen, setUpsertSheetIsOpen] = useState(false);
 
   const handleCopyToClipboardClick = () => {
     navigator.clipboard.writeText(sale.id);
     toast.success("ID copiado para a área de transferência");
   };
 
+  const defaultSelectedProducts = sale.saleProducts.map((saleProduct) => ({
+    id: saleProduct.productId,
+    name: saleProduct.productName,
+    price: saleProduct.unitPrice,
+    quantity: saleProduct.quantity,
+  }));
+
   return (
-    <AlertDialog>
-      <Dialog open={editDialogIsOpen} onOpenChange={setEditDialogIsOpen}>
+    <Sheet open={upsertSheetIsOpen} onOpenChange={setUpsertSheetIsOpen}>
+      <AlertDialog>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost">
@@ -52,12 +68,12 @@ const SaleTableDropdownMenu = ({ sale }: SaleTableDropdownMenuProps) => {
               <ClipboardCopyIcon size={16} />
               Copiar ID
             </DropdownMenuItem>
-            <DialogTrigger asChild>
+            <SheetTrigger asChild>
               <DropdownMenuItem className="gap-2">
                 <EditIcon size={16} />
                 Editar
               </DropdownMenuItem>
-            </DialogTrigger>
+            </SheetTrigger>
             <AlertDialogTrigger asChild>
               <DropdownMenuItem className="gap-2">
                 <TrashIcon size={16} />
@@ -67,19 +83,18 @@ const SaleTableDropdownMenu = ({ sale }: SaleTableDropdownMenuProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* <UpsertProductDialogContent
-          defaultValues={{
-            id: product.id,
-            name: product.name,
-            price: Number(product.price),
-            stock: product.stock,
-          }}
-          setDialogIsOpen={setEditDialogIsOpen}
-        /> */}
-
         <AlertDeleteSaleDialogContent saleId={sale.id} />
-      </Dialog>
-    </AlertDialog>
+      </AlertDialog>
+
+      <UpsertSaleSheetContent
+        saleId={sale.id}
+        isOpen={upsertSheetIsOpen}
+        products={products}
+        productOptions={productOptions}
+        setSheetIsOpen={setUpsertSheetIsOpen}
+        defaultSelectedProducts={defaultSelectedProducts}
+      />
+    </Sheet>
   );
 };
 
