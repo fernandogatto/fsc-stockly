@@ -13,5 +13,5 @@ export const deleteSale = actionClient
         id,
       },
     });
-    revalidatePath("/sales");
+    revalidatePath("/", "layout");
   });
